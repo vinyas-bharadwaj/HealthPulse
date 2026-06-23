@@ -6,6 +6,7 @@ class Transaction(Base):
     __tablename__ = "transactions"
 
     id = Column(Integer, primary_key=True, index=True)
+    analysis_id = Column(Integer, ForeignKey("analysis_runs.id"), index=True, nullable=True)
     sender_hospital_id = Column(Integer, ForeignKey("hospitals.id"), index=True)
     receiver_hospital_id = Column(Integer, ForeignKey("hospitals.id"), index=True)
     item_name = Column(String, index=True) # e.g., 'ventilators_available', 'blood_units_a_plus'

@@ -22,14 +22,27 @@ const Analysis: React.FC = () => {
   const [result, setResult] = useState<AnalysisGenerateResponse | null>(null);
   const [actionStatus, setActionStatus] = useState<'pending' | 'approved' | 'declined'>('pending');
   const [actionMessage, setActionMessage] = useState('');
+  
+  const [autoRunEnabled, setAutoRunEnabled] = useState(false);
+  const [autoIntervalMinutes, setAutoIntervalMinutes] = useState(5);
+  const [lastRunTime, setLastRunTime] = useState<Date | null>(null);
+
+  React.useEffect(() => {
+    let intervalId: NodeJS.Timeout;
+    if (autoRunEnabled) {
+      intervalId = setInterval(() => {
+        handleGenerate(null);
+      }, autoIntervalMinutes * 60 * 1000);
+    }
+    return () => clearInterval(intervalId);
+  }, [autoRunEnabled, autoIntervalMinutes, token]);
 
   if (!user) {
     return <Navigate to="/login" />;
   }
 
-  const handleGenerate = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newsContext) return;
+  const handleGenerate = async (e?: React.FormEvent | null) => {
+    if (e) e.preventDefault();
     
     setLoading(true);
     setResult(null);
@@ -50,6 +63,7 @@ const Analysis: React.FC = () => {
 
       const data = await res.json();
       setResult(data);
+      setLastRunTime(new Date());
     } catch (err) {
       console.error(err);
       alert('Error generating analysis. Make sure the API key is configured properly.');
@@ -90,19 +104,48 @@ const Analysis: React.FC = () => {
       <div className="analysis-card">
         <form onSubmit={handleGenerate}>
           <div className="form-group">
-            <label>Current Event Context</label>
+            <label>Current Event Context (Optional - Leave blank to use live news)</label>
             <textarea 
               rows={5}
-              placeholder="e.g. A severe earthquake has struck City X, expecting hundreds of casualties..."
+              placeholder="e.g. A severe earthquake has struck City X... (If left blank, AI will fetch live disaster news from the web)"
               value={newsContext}
               onChange={e => setNewsContext(e.target.value)}
               className="analysis-textarea"
-              required
             ></textarea>
           </div>
-          <button type="submit" className="btn btn-primary" disabled={loading}>
-            {loading ? 'Analyzing...' : 'Generate Reallocation Strategy'}
-          </button>
+          <div className="form-group" style={{ display: 'flex', gap: '16px', alignItems: 'flex-end', marginTop: '16px' }}>
+            <div style={{ flex: 1 }}>
+              <label>Auto-Run Interval (Minutes)</label>
+              <input 
+                type="number" 
+                min="1" 
+                value={autoIntervalMinutes} 
+                onChange={e => setAutoIntervalMinutes(parseInt(e.target.value) || 1)}
+                className="analysis-input"
+                style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #e2e8f0' }}
+                disabled={autoRunEnabled}
+              />
+            </div>
+            <button 
+              type="button" 
+              className={`btn ${autoRunEnabled ? 'btn-secondary' : 'btn-primary'}`}
+              onClick={() => {
+                setAutoRunEnabled(!autoRunEnabled);
+              }}
+              style={{ backgroundColor: autoRunEnabled ? '#f87171' : '', color: autoRunEnabled ? '#fff' : '', border: 'none' }}
+            >
+              {autoRunEnabled ? 'Stop Auto-Run' : 'Enable Auto-Run'}
+            </button>
+            <button type="submit" className="btn btn-primary" disabled={loading || autoRunEnabled}>
+              {loading ? 'Analyzing...' : 'Run Once Now'}
+            </button>
+          </div>
+          {autoRunEnabled && (
+            <p style={{ marginTop: '12px', fontSize: '0.85rem', color: '#10b981', fontWeight: 'bold' }}>
+              ✓ Auto-Run active. Analysis runs every {autoIntervalMinutes} minutes. 
+              {lastRunTime && ` Last run at ${lastRunTime.toLocaleTimeString()}.`}
+            </p>
+          )}
         </form>
       </div>
 

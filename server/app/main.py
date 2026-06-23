@@ -7,6 +7,7 @@ models.user.Base.metadata.create_all(bind=engine)
 # Note: we need to create metadata for hospital too. Let's do it via the Base imported from models
 models.hospital.Base.metadata.create_all(bind=engine)
 models.transaction.Base.metadata.create_all(bind=engine)
+models.analysis_run.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="HealthPulse API")
 

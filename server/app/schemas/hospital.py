@@ -1,10 +1,12 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 
 class HospitalBase(BaseModel):
     name: str
     address: str
     city: str
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
     total_beds: int = 0
     available_beds: int = 0
     icu_beds_total: int = 0
@@ -24,6 +26,8 @@ class HospitalUpdate(BaseModel):
     name: Optional[str] = None
     address: Optional[str] = None
     city: Optional[str] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
     total_beds: Optional[int] = None
     available_beds: Optional[int] = None
     icu_beds_total: Optional[int] = None
@@ -37,6 +41,23 @@ class HospitalUpdate(BaseModel):
     blood_units_ab_plus: Optional[int] = None
 
 class Hospital(HospitalBase):
+    id: int
+
+    class Config:
+        from_attributes = True
+
+class HospitalDistanceBase(BaseModel):
+    source_hospital_id: int
+    target_hospital_id: int
+    distance: float
+
+class HospitalDistanceCreate(HospitalDistanceBase):
+    pass
+
+class HospitalDistanceUpdate(BaseModel):
+    distance: Optional[float] = None
+
+class HospitalDistance(HospitalDistanceBase):
     id: int
 
     class Config:

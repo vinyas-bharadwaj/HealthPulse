@@ -22,7 +22,6 @@ const Navbar: React.FC = () => {
       <div className="nav-links">
         <Link to="/dashboard" className="nav-link">Dashboard</Link>
         <Link to="/inventory" className="nav-link">Inventory</Link>
-        <Link to="/analysis" className="nav-link">Analysis</Link>
         
         {user ? (
           <div style={{display: 'flex', alignItems: 'center', gap: '1rem'}}>

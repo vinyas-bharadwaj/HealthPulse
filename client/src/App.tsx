@@ -5,7 +5,6 @@ import Home from './components/Home';
 import Dashboard from './components/Dashboard';
 import Login from './components/Login';
 import Register from './components/Register';
-import Analysis from './components/Analysis';
 import Inventory from './components/Inventory';
 import { AuthProvider } from './context/AuthContext';
 
@@ -21,7 +20,6 @@ function App() {
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
-              <Route path="/analysis" element={<Analysis />} />
               <Route path="/inventory" element={<Inventory />} />
             </Routes>
           </main>
